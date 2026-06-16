@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BigQuery Release Notes Dashboard</title>
+    <!-- Google Fonts for premium typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Main Style Sheet -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <!-- Main Dashboard Container -->
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-content">
+                <div class="logo-area">
+                    <svg class="bq-logo" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3ZM9 17H7V10H9V17ZM13 17H11V7H13V17ZM17 17H15V13H17V17Z" fill="currentColor"/>
+                    </svg>
+                    <h1>BigQuery Release Notes</h1>
+                </div>
+                <div class="header-actions">
+                    <button id="theme-toggle" class="btn-icon" aria-label="Toggle dark mode">
+                        <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+                        <svg class="moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+                    </button>
+                    <button id="btn-refresh" class="btn btn-primary">
+                        <svg id="spinner" class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                            <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l.73-.73"/>
+                        </svg>
+                        <span>Refresh Notes</span>
+                    </button>
+                </div>
+            </div>
+            <p class="subtitle">Track updates, features, changes, and issues in Google Cloud BigQuery in real time.</p>
+        </header>
+
+        <!-- Search and Filter Controls -->
+        <section class="controls-panel">
+            <div class="search-box">
+                <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                </svg>
+                <input type="text" id="search-input" placeholder="Search keywords, dates, features...">
+                <button id="clear-search" class="clear-btn">&times;</button>
+            </div>
+            
+            <div class="filters-scroll">
+                <div class="filter-pills" id="type-filters">
+                    <button class="pill active" data-type="all">All Updates</button>
+                    <button class="pill" data-type="feature">Features</button>
+                    <button class="pill" data-type="change">Changes</button>
+                    <button class="pill" data-type="issue">Issues</button>
+                    <button class="pill" data-type="deprecation">Deprecations</button>
+                </div>
+            </div>
+
+            <div class="sort-box">
+                <label for="sort-select">Sort by:</label>
+                <select id="sort-select" class="form-select">
+                    <option value="newest">Newest First</option>
+                    <option value="oldest">Oldest First</option>
+                </select>
+            </div>
+        </section>
+
+        <!-- Main Workspace Area -->
+        <main class="main-content">
+            <!-- Loading State -->
+            <div id="loading-state" class="loading-container hidden">
+                <div class="skeleton-grid">
+                    <div class="skeleton-card"></div>
+                    <div class="skeleton-card"></div>
+                    <div class="skeleton-card"></div>
+                    <div class="skeleton-card"></div>
+                </div>
+            </div>
+
+            <!-- Empty State -->
+            <div id="empty-state" class="empty-container hidden">
+                <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                </svg>
+                <h3>No Release Notes Found</h3>
+                <p>We couldn't find any updates matching your filters. Try clearing your search.</p>
+                <button id="btn-reset-filters" class="btn btn-outline">Reset Filters</button>
+            </div>
+
+            <!-- Cards Container Grid -->
+            <div id="cards-grid" class="cards-grid">
+                <!-- Cards injected dynamically via JS -->
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="app-footer">
+            <p>BigQuery Release Notes Dashboard &bull; Powered by Flask and Vanilla JS</p>
+        </footer>
+    </div>
+
+    <!-- Twitter / Share Modal -->
+    <div id="share-modal" class="modal-overlay hidden">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h2>Share Release Note</h2>
+                <button class="close-modal-btn" id="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <!-- Preview card -->
+                <div class="share-preview-card" id="share-preview">
+                    <div class="preview-meta">
+                        <span class="preview-badge" id="preview-badge">Feature</span>
+                        <span class="preview-date" id="preview-date">June 15, 2026</span>
+                    </div>
+                    <div class="preview-content" id="preview-content">
+                        <!-- Shortened preview text -->
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="share-text">Share Template (Twitter/X compatible):</label>
+                    <textarea id="share-text" rows="5" class="form-textarea"></textarea>
+                    <div class="textarea-footer">
+                        <span id="char-counter">0 / 280</span>
+                        <span id="char-warning" class="warning-text hidden">Too long for a single post!</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" id="btn-copy-share">
+                    <svg class="btn-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                    </svg>
+                    <span>Copy Text</span>
+                </button>
+                <a href="#" target="_blank" class="btn btn-share-x" id="btn-post-x">
+                    <svg class="btn-icon-svg" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                    </svg>
+                    <span>Post to X</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- Main JavaScript Logic -->
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
