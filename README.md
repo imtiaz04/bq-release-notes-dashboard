@@ -28,6 +28,9 @@ bq-release-notes/
     └── js/
         └── app.js          # App controller (fetching, filters, sharing, theme)
 ```
+## Architecture Diagram
+
+<img width="577" height="688" alt="Architechture" src="https://github.com/user-attachments/assets/d000d825-5dc0-4d19-8877-bc7b97bfd84c" />
 
 ---
 
