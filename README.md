@@ -33,6 +33,10 @@ bq-release-notes/
 <img width="577" height="688" alt="Architechture" src="https://github.com/user-attachments/assets/d000d825-5dc0-4d19-8877-bc7b97bfd84c" />
 
 ---
+## Web Image
+
+<img width="1608" height="934" alt="webImage" src="https://github.com/user-attachments/assets/f249be8c-9633-4bc1-8b7b-4486e9b153a3" />
+
 
 ## 🛠️ Getting Started
 
